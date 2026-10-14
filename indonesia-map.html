@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Explore the provinces of Indonesia on an interactive map."
+  />
+  <title>Indonesia — Interactive Map</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <link rel="stylesheet" href="indonesia-map.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Indonesia Map home">
+      <span class="brand-mark">ID</span>
+      <span>
+        <strong>FIREWATCH</strong>
+        <small>INTERACTIVE ATLAS</small>
+      </span>
+    </a>
+
+    <div class="topbar-right">
+      <span class="status-dot"></span>
+      <span>38 PROVINCES</span>
+    </div>
+  </header>
+
+  <main class="map-layout">
+    <section class="map-heading">
+      <div>
+        <p class="eyebrow">SOUTHEAST ASIA / ARCHIPELAGO</p>
+        <h1>Explore Indonesia<span>.</span></h1>
+        <p class="subtitle">
+          Select a province to explore its place on the map.
+        </p>
+      </div>
+
+      <button id="reset-map" class="reset-button" type="button">
+        <span aria-hidden="true">↺</span> Reset view
+      </button>
+    </section>
+
+    <section class="map-frame" aria-label="Interactive map of Indonesia">
+      <div id="map"></div>
+
+      <div class="map-stamp" aria-hidden="true">
+        <span>REPUBLIC OF INDONESIA</span>
+        <strong>17,000+</strong>
+        <small>ISLANDS · ARCHIPELAGO</small>
+      </div>
+
+      <div class="map-hint">
+        <span class="hint-dot"></span>
+        Hover to explore <span class="hint-separator">/</span> Click to select
+      </div>
+    </section>
+
+    <section class="selection-bar" aria-live="polite">
+      <div class="selection-icon" aria-hidden="true">⌖</div>
+
+      <div class="selection-copy">
+        <span class="selection-label">SELECTED PROVINCE</span>
+        <strong id="province-name">No province selected</strong>
+        <span id="province-code">Click a province on the map</span>
+      </div>
+
+      <div class="selection-actions">
+        <span id="province-count">38 provinces available</span>
+        <button id="clear-selection" type="button">Clear selection</button>
+      </div>
+    </section>
+
+    
+    <section class="address-search">
+    <div class="search-heading">
+        <div>
+        <span class="search-eyebrow">LOCATION FINDER</span>
+        <h2>Find a place<span>.</span></h2>
+        <p>Search for an address or location in Indonesia.</p>
+        </div>
+        <span class="search-icon" aria-hidden="true">⌕</span>
+    </div>
+
+    <form id="address-search-form" class="search-form">
+        <label class="sr-only" for="address-input">Address or location</label>
+        <span class="input-icon" aria-hidden="true">⌖</span>
+        <input
+        id="address-input"
+        type="search"
+        placeholder="Enter an address, city, or landmark..."
+        autocomplete="off"
+        required
+        />
+        <button id="address-search-button" type="submit">
+        Search <span aria-hidden="true">→</span>
+        </button>
+    </form>
+
+    <p id="address-search-status" class="search-status" aria-live="polite">
+        Try a place such as Braga Street, Bandung.
+    </p>
+    </section>
+
+
+    <footer class="map-footer">
+      <span>GEOGRAPHIC EXPLORATION</span>
+      <span>Map data © OpenStreetMap contributors · Esri</span>
+    </footer>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="indonesia-map.js"></script>
+</body>
+</html>
