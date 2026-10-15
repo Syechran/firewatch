@@ -1,7 +1,8 @@
-// Form laporan warga: mengirim ke postLaporan(). Koordinat bisa diisi
-// dengan mengklik peta.
+// Form laporan warga. Koordinat bisa diisi dengan mengklik peta.
+// Endpoint laporan belum ada di backend (REPORTS_ENABLED=false).
 import { map } from "./map.js";
 import { postLaporan } from "./api.js";
+import { REPORTS_ENABLED } from "./config.js";
 
 export function initReport() {
   const form = document.getElementById("report-form");
@@ -19,6 +20,13 @@ export function initReport() {
     lng.value = event.latlng.lng.toFixed(5);
     status.textContent = "Koordinat diisi dari peta.";
   });
+
+  if (!REPORTS_ENABLED) {
+    submit.disabled = true;
+    status.textContent =
+      "Endpoint laporan warga belum tersedia di backend — form dinonaktifkan sementara.";
+    return;
+  }
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();

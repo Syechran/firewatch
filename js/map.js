@@ -14,6 +14,17 @@ export const map = L.map("map", {
   zoomSnap: 0.25
 });
 
+// Pane terpisah agar provinsi dan titik panas tidak saling menutupi.
+// Tanpa ini, bringToFront() saat hover/klik provinsi menaruh polygon di atas
+// marker titik panas, sehingga klik marker tertangkap provinsi dan popupnya
+// tidak pernah terbuka.
+map.createPane("provinces");
+map.getPane("provinces").style.zIndex = "410";
+map.createPane("zones");
+map.getPane("zones").style.zIndex = "415";
+map.createPane("hotspots");
+map.getPane("hotspots").style.zIndex = "420";
+
 // Basemap topografi.
 L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",

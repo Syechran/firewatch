@@ -1,18 +1,26 @@
 // Konfigurasi terpusat untuk aplikasi peta FIREWATCH.
 // Ubah nilai di sini saat backend SiagaApi siap dipakai.
 
-// Set false begitu backend temanmu jalan, lalu isi API_BASE di bawah.
-export const USE_MOCK = true;
+// Set true untuk memakai data contoh tanpa backend (mis. pengembangan UI).
+export const USE_MOCK = false;
 
-// Base URL backend (Node). Contoh: "http://localhost:3000/api".
+// Base URL backend. Kosong = same origin (Express menyajikan frontend ini).
+// Contoh dev terpisah: "http://localhost:3000".
 export const API_BASE = "";
 
-// Kontrak endpoint backend yang diharapkan. Sesuaikan path-nya nanti.
+// Kontrak endpoint backend (lihat src/routes/fires.js).
 export const ENDPOINTS = {
-  provinceRisk: "/risiko/provinsi",
-  hotspots: "/titik-panas",
-  laporan: "/laporan-warga"
+  fires: "/api/fires",
+  firesLatest: "/api/fires/latest",
+  firesStats: "/api/fires/stats",
+  health: "/health"
 };
+
+// Backend belum punya endpoint laporan warga; form ditandai belum tersedia.
+export const REPORTS_ENABLED = false;
+
+// Batas jumlah hotspot yang diambil per permintaan (maks backend 5000).
+export const HOTSPOT_LIMIT = 5000;
 
 // Sumber data eksternal (sementara, sampai backend mem-proxy-nya).
 export const PROVINCE_GEOJSON_URL =
@@ -91,6 +99,52 @@ export function riskLevel(index) {
 export function riskColor(index) {
   return COLORS.risk[riskLevel(index)];
 }
+
+// --- Status lokasi "Find a Place" ---
+// Ambang jarak & level untuk menilai apakah sebuah lokasi berada di zona
+// kebakaran/potensi. Dipakai oleh js/risk.js dan js/status-popup.js.
+export const FIRE_STATUS = {
+  watchRadiusKm: 25, // ada titik panas dalam radius ini -> SIAGA
+  evacuateRadiusKm: 10, // titik api aktif (level >= smoldering) -> SEGERA EVAKUASI
+  immediateRadiusKm: 3, // titik menyala/flaming -> SEGERA MELARIKAN DIRI
+  smokeRadiusKm: 60, // jangkauan asap/kabut (api di dalam radius ini bisa mencemari udara)
+  smokeDenseRadiusKm: 35, // asap pekat bila ada api aktif (level >= smoldering) di sini
+  smolderingLevel: 2,
+  flamingLevel: 3
+};
+
+export const FIRE_STATUS_META = {
+  aman: {
+    label: "AMAN",
+    description:
+      "Tidak ada titik panas terdeteksi dalam 60 km dari lokasi ini."
+  },
+  asap: {
+    label: "WASPADA ASAP",
+    description:
+      "Tidak ada api dekat, tetapi ada titik panas dalam 60 km. Asap/kabut dapat terbawa angin dan berisiko bagi pernapasan — pakai masker dan tutup ventilasi."
+  },
+  siaga: {
+    label: "SIAGA",
+    description:
+      "Ada titik panas dalam 25 km. Pantau asap dan arah angin, pakai masker di luar ruangan, dan siapkan tas siaga."
+  },
+  evakuasi: {
+    label: "SEGERA EVAKUASI",
+    description:
+      "Ada titik api aktif dalam 10 km. Bersiap evakuasi sebelum api menyebar, dan hindari paparan asap."
+  },
+  larikan_diri: {
+    label: "SEGERA MELARIKAN DIRI",
+    description:
+      "Titik api menyala (flaming) sangat dekat. Tinggalkan lokasi sekarang dan bergerak melawan arah angin."
+  }
+};
+
+export const SMOKE_NOTES = {
+  haze: "Asap/kabut ringan terdeteksi di sekitar.",
+  dense: "Asap pekat dari api aktif — kualitas udara berisiko tinggi bagi pernapasan."
+};
 
 // Daftar provinsi untuk data mock (dicocokkan tanpa peduli huruf besar/kecil).
 export const PROVINCES = [

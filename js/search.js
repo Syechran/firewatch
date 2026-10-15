@@ -1,7 +1,11 @@
 // Pencarian alamat memakai Nominatim (sementara, sampai backend mem-proxy).
 import { map } from "./map.js";
-import { NOMINATIM_URL, SEARCH_THROTTLE_MS } from "./config.js";
+import { FIRE_STATUS, NOMINATIM_URL, SEARCH_THROTTLE_MS } from "./config.js";
 import { escapeHtml } from "./utils.js";
+import { state } from "./state.js";
+import { assessLocation } from "./risk.js";
+import { showPlaceStatus } from "./status-popup.js";
+import { notifyStatus } from "./notify.js";
 
 const form = document.getElementById("address-search-form");
 const input = document.getElementById("address-input");
@@ -9,6 +13,7 @@ const status = document.getElementById("address-search-status");
 const button = document.getElementById("address-search-button");
 
 let marker = null;
+let smokeLayer = null;
 let lastSearch = 0;
 
 export function initSearch() {
@@ -33,7 +38,24 @@ export function initSearch() {
     try {
       const place = await geocode(query);
       focusPlace(place);
+      drawSmokeZone(place);
       status.textContent = `Lokasi ditemukan: ${place.display_name}`;
+
+      const assessment = assessLocation(
+        place.lat,
+        place.lng,
+        state.hotspots
+      );
+      showPlaceStatus({
+        place,
+        assessment,
+        dataAvailable: state.hotspots.length > 0
+      });
+      notifyStatus({
+        place,
+        assessment,
+        dataAvailable: state.hotspots.length > 0
+      });
     } catch (error) {
       console.error("Address search failed:", error);
       status.textContent = error.message;
@@ -79,6 +101,42 @@ function focusPlace(place) {
   map.flyTo([place.lat, place.lng], 14, { duration: 1.2 });
 
   if (marker) map.removeLayer(marker);
+  // Popup status ditampilkan di luar peta (js/status-popup.js); marker peta
+  // cukup menandai titik dan menampilkan nama saat diklik.
   marker = L.marker([place.lat, place.lng]).addTo(map);
-  marker.bindPopup(`<strong>${escapeHtml(place.display_name)}</strong>`).openPopup();
+  marker.bindPopup(`<strong>${escapeHtml(place.display_name)}</strong>`);
+}
+
+// Zona asap (perkiraan radial): api di dalam radius ini bisa membuat udara
+// di lokasi tercemar asap/kabut. Belum memperhitungkan arah angin.
+function drawSmokeZone(place) {
+  if (smokeLayer) {
+    map.removeLayer(smokeLayer);
+    smokeLayer = null;
+  }
+
+  const zones = [
+    { radiusKm: FIRE_STATUS.smokeRadiusKm, color: "#ffb26b", fillOpacity: 0.04 },
+    {
+      radiusKm: FIRE_STATUS.smokeDenseRadiusKm,
+      color: "#ff7a3d",
+      fillOpacity: 0.07
+    }
+  ];
+
+  smokeLayer = L.layerGroup(
+    zones.map(
+      (zone) =>
+        L.circle([place.lat, place.lng], {
+          pane: "zones",
+          radius: zone.radiusKm * 1000,
+          color: zone.color,
+          weight: 1,
+          dashArray: "5 6",
+          fillColor: zone.color,
+          fillOpacity: zone.fillOpacity,
+          interactive: false
+        })
+    )
+  ).addTo(map);
 }

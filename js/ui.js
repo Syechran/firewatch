@@ -60,7 +60,10 @@ function renderRiskBadge(detail) {
     return;
   }
 
-  badge.textContent = `${detail.level.toUpperCase()} · ${detail.index.toFixed(2)}`;
+  badge.textContent =
+    detail.count != null
+      ? `${detail.count} titik panas`
+      : `${detail.level.toUpperCase()} · ${detail.index.toFixed(2)}`;
   badge.dataset.level = detail.level;
 }
 
@@ -72,7 +75,14 @@ export function renderHotspotStatus(count) {
   }
 }
 
-export function renderBackendStatus() {
+export function renderBackendStatus(online = null) {
   const el = document.getElementById("backend-status");
-  if (el) el.textContent = USE_MOCK ? "MOCK DATA" : "LIVE";
+  if (!el) return;
+  if (USE_MOCK) {
+    el.textContent = "MOCK DATA";
+  } else if (online === null) {
+    el.textContent = "MENGHUBUNGKAN…";
+  } else {
+    el.textContent = online ? "LIVE" : "OFFLINE";
+  }
 }

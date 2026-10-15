@@ -68,12 +68,14 @@ export function refreshStyles() {
 
 function selectionDetail(feature) {
   if (!feature) return null;
+  const entry = state.riskByProvince.get(normalizeName(getProvinceName(feature)));
   const index = riskForFeature(feature);
   return {
     provinsi: getProvinceName(feature),
     code: getProvinceCode(feature),
     index,
-    level: index != null ? riskLevel(index) : null
+    level: index != null ? riskLevel(index) : null,
+    count: entry?.count ?? null
   };
 }
 
@@ -185,6 +187,7 @@ export async function loadProvinces() {
     }
 
     provinceLayer = L.geoJSON(geojson, {
+      pane: "provinces",
       style: (feature) => baseStyleForFeature(feature),
       onEachFeature: onEachProvince
     }).addTo(map);

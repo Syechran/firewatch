@@ -1,18 +1,24 @@
-// Layer titik panas (hotspot) dari API FIRMS (via backend).
+// Layer titik panas dari backend (JAXA Himawari WLF via /api/fires).
 import { map } from "./map.js";
 import { state, setState } from "./state.js";
 import { escapeHtml, formatDateTime } from "./utils.js";
 
-const CONFIDENCE_COLORS = {
-  low: "#f0c266",
-  nominal: "#ff8b4d",
-  high: "#ff4d2e"
+const FIRE_LEVEL_COLORS = {
+  1: "#d9b26b", // cold
+  2: "#ff9a4d", // smoldering
+  3: "#ff4d2e" // flaming
+};
+
+const FIRE_LEVEL_LABELS = {
+  1: "Cold",
+  2: "Smoldering",
+  3: "Flaming"
 };
 
 let hotspotLayer = null;
 
-function confidenceColor(confidence) {
-  return CONFIDENCE_COLORS[String(confidence).toLowerCase()] || "#e8843c";
+function levelColor(level) {
+  return FIRE_LEVEL_COLORS[Number(level)] || "#ff8b4d";
 }
 
 function radiusForFrp(frp) {
@@ -21,11 +27,15 @@ function radiusForFrp(frp) {
 }
 
 function popupHtml(hotspot) {
+  const level = Number(hotspot.fireLevel);
   const rows = [
     ["Koordinat", `${hotspot.latitude}, ${hotspot.longitude}`],
-    ["Confidence", hotspot.confidence],
-    ["FRP", hotspot.frp != null ? `${hotspot.frp} MW` : "—"],
-    ["Waktu", formatDateTime(hotspot.acq_date)],
+    ["Fire level", FIRE_LEVEL_LABELS[level] || "—"],
+    ["Reliability", hotspot.reliability ?? "—"],
+    ["FRP", hotspot.frp != null ? `${hotspot.frp} W/m²` : "—"],
+    ["Luas", hotspot.area != null ? `${hotspot.area} km²` : "—"],
+    ["Satelit", hotspot.satellite || "—"],
+    ["Waktu", formatDateTime(hotspot.observedAt)],
     ["Sumber", hotspot.source || "—"]
   ];
 
@@ -46,10 +56,11 @@ export function renderHotspots(hotspots) {
   hotspotLayer = L.layerGroup(
     hotspots.map((hotspot) =>
       L.circleMarker([hotspot.latitude, hotspot.longitude], {
+        pane: "hotspots",
         radius: radiusForFrp(hotspot.frp),
-        color: confidenceColor(hotspot.confidence),
+        color: levelColor(hotspot.fireLevel),
         weight: 1,
-        fillColor: confidenceColor(hotspot.confidence),
+        fillColor: levelColor(hotspot.fireLevel),
         fillOpacity: 0.75
       }).bindPopup(popupHtml(hotspot))
     )

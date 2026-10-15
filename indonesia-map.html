@@ -67,7 +67,7 @@
       </div>
 
       <div class="map-legend" id="map-legend" aria-label="Legend indeks risiko">
-        <span class="legend-title">INDEKS RISIKO</span>
+        <span class="legend-title">KEPADATAN TITIK PANAS</span>
         <ul></ul>
       </div>
 
@@ -120,15 +120,30 @@
       </form>
 
       <p id="address-search-status" class="search-status" aria-live="polite">
-        Try a place such as Braga Street, Bandung.
+        Contoh: Braga, Bandung.
       </p>
+
+      <div class="notify-row">
+        <button
+          type="button"
+          id="notify-toggle"
+          class="notify-toggle"
+          aria-pressed="false"
+        >
+          Aktifkan peringatan browser
+        </button>
+        <span class="notify-hint">
+          Muncul sebagai notifikasi Chrome saat status lokasi bukan AMAN.
+          Hanya di HTTPS atau localhost.
+        </span>
+      </div>
     </section>
 
     <section class="content-section" id="ringkasan">
       <div class="section-head">
         <p class="eyebrow">SITUASI NASIONAL</p>
         <h2>Pantauan hari ini<span>.</span></h2>
-        <p>Ringkasan singkat titik panas dan provinsi berisiko tinggi, diperbarui dari data terakhir.</p>
+        <p>Ringkasan singkat titik panas dan provinsi dengan sebaran hotspot terbanyak, diperbarui dari data terakhir.</p>
       </div>
 
       <div class="stat-grid">
@@ -138,14 +153,14 @@
           <small>24 jam terakhir</small>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Confidence tinggi</span>
+          <span class="stat-label">Api aktif (flaming)</span>
           <strong id="stat-high">—</strong>
-          <small>prioritas verifikasi</small>
+          <small>fire level 3</small>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Provinsi risiko tinggi</span>
+          <span class="stat-label">Provinsi ada titik panas</span>
           <strong id="stat-risk">—</strong>
-          <small>indeks ≥ 0.70</small>
+          <small>dari sebaran hotspot</small>
         </div>
         <div class="stat-card">
           <span class="stat-label">Pembaruan terakhir</span>
@@ -290,7 +305,7 @@
       <div class="section-head">
         <p class="eyebrow">PARTISIPASI WARGA</p>
         <h2>Lapor titik api<span>.</span></h2>
-        <p>Lihat asap atau api? Klik lokasi di peta untuk mengisi koordinat, lalu kirim laporan.</p>
+        <p>Klik lokasi di peta untuk mengisi koordinat, lalu kirim laporan. Endpoint laporan belum tersedia di backend, sehingga form dinonaktifkan sementara.</p>
       </div>
 
       <form id="report-form" class="report-form">
@@ -395,6 +410,55 @@
       <span>Map data © OpenStreetMap contributors · Esri</span>
     </footer>
   </main>
+
+  <div
+    id="place-status"
+    class="place-status"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="place-status-title"
+    aria-describedby="place-status-desc"
+    hidden
+  >
+    <div class="place-status-backdrop" data-close></div>
+    <div class="place-status-card" data-level="aman">
+      <button
+        type="button"
+        class="place-status-close"
+        data-close
+        aria-label="Tutup status lokasi"
+      >
+        ×
+      </button>
+      <span class="place-status-eyebrow">STATUS LOKASI</span>
+      <h3 id="place-status-title" class="place-status-title">—</h3>
+      <p id="place-status-desc" class="place-status-desc">—</p>
+      <p id="place-status-place" class="place-status-place"></p>
+      <dl class="place-status-metrics">
+        <div>
+          <dt>Titik terdekat</dt>
+          <dd id="place-status-nearest">—</dd>
+        </div>
+        <div>
+          <dt>Api aktif ≤ 10 km</dt>
+          <dd id="place-status-near">—</dd>
+        </div>
+        <div>
+          <dt>Zona asap ≤ 60 km</dt>
+          <dd id="place-status-smoke">—</dd>
+        </div>
+        <div>
+          <dt>Level tertinggi</dt>
+          <dd id="place-status-level">—</dd>
+        </div>
+      </dl>
+      <p id="place-status-smoke-note" class="place-status-smoke-note"></p>
+      <p class="place-status-note">
+        Indikatif dari titik panas satelit Himawari, bukan peringatan resmi.
+        Selalu ikuti arahan BNPB/BMKG.
+      </p>
+    </div>
+  </div>
 
   <script src="vendor/leaflet/leaflet.js"></script>
   <script type="module" src="js/main.js"></script>

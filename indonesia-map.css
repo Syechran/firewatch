@@ -693,6 +693,252 @@ h1 > span {
   font-weight: 700;
 }
 
+/* --- Notifikasi browser (Find a Place) --- */
+
+.notify-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.notify-toggle {
+  padding: 9px 16px;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.notify-toggle[data-state="on"] {
+  color: var(--accent-2);
+  background: rgba(255, 90, 44, 0.14);
+  border-color: var(--accent);
+}
+
+.notify-toggle[data-state="blocked"] {
+  color: #ffa470;
+  border-color: #a85a2c;
+  cursor: not-allowed;
+}
+
+.notify-toggle:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.notify-hint {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* --- Place status popup (di luar peta, tampil ke user) --- */
+
+.place-status {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.place-status[hidden] {
+  display: none;
+}
+
+.place-status-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 4, 3, 0.66);
+  backdrop-filter: blur(3px);
+}
+
+.place-status-card {
+  position: relative;
+  width: min(440px, 100%);
+  padding: 26px 26px 22px;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  border-top: 4px solid var(--accent);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  animation: place-status-in 180ms ease-out;
+}
+
+@keyframes place-status-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.place-status-card[data-level="aman"] {
+  border-top-color: #8fbf6a;
+}
+
+.place-status-card[data-level="asap"] {
+  border-top-color: #e0973f;
+}
+
+.place-status-card[data-level="siaga"] {
+  border-top-color: #f0c266;
+}
+
+.place-status-card[data-level="evakuasi"] {
+  border-top-color: #ff8b4d;
+}
+
+.place-status-card[data-level="larikan_diri"] {
+  border-top-color: #ff3b1f;
+}
+
+.place-status-eyebrow {
+  font: 500 9px 'DM Mono', monospace;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+
+.place-status-title {
+  margin: 8px 0 6px;
+  font-family: 'Fraunces', serif;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.place-status-card[data-level="aman"] .place-status-title {
+  color: #a9d38a;
+}
+
+.place-status-card[data-level="asap"] .place-status-title {
+  color: #e8b269;
+}
+
+.place-status-card[data-level="siaga"] .place-status-title {
+  color: #f0c266;
+}
+
+.place-status-card[data-level="evakuasi"] .place-status-title {
+  color: #ffa470;
+}
+
+.place-status-card[data-level="larikan_diri"] .place-status-title {
+  color: #ff6a4d;
+}
+
+.place-status-desc {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.place-status-place {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.place-status-place:empty {
+  display: none;
+}
+
+.place-status-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.place-status-metrics div {
+  padding: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.place-status-metrics dt {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.place-status-metrics dd {
+  margin: 0;
+  font: 500 13px 'DM Mono', monospace;
+}
+
+.place-status-smoke-note {
+  margin: 0 0 12px;
+  padding: 9px 11px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #f0c266;
+  background: rgba(224, 151, 63, 0.12);
+  border: 1px solid rgba(224, 151, 63, 0.3);
+  border-radius: 9px;
+}
+
+.place-status-smoke-note[hidden] {
+  display: none;
+}
+
+.place-status-smoke-note[data-level="dense"] {
+  color: #ffa470;
+  background: rgba(255, 90, 44, 0.14);
+  border-color: rgba(255, 90, 44, 0.35);
+}
+
+.place-status-note {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.place-status-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.place-status-close:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+@media (max-width: 520px) {
+  .place-status-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* --- Responsive --- */
 
 @media (max-width: 700px) {
