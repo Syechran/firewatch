@@ -312,7 +312,7 @@
       <div class="section-head">
         <p class="eyebrow">PARTISIPASI WARGA</p>
         <h2>Lapor titik api<span>.</span></h2>
-        <p>Klik lokasi di peta untuk mengisi koordinat, lalu kirim laporan. Endpoint laporan belum tersedia di backend, sehingga form dinonaktifkan sementara.</p>
+        <p>Klik lokasi di peta untuk mengisi koordinat dan memeriksa kedekatannya dengan titik panas (radius 5 km). Endpoint laporan belum tersedia di backend, sehingga pengiriman dinonaktifkan sementara.</p>
       </div>
 
       <form id="report-form" class="report-form">
@@ -458,11 +458,28 @@
           <dt>Level tertinggi</dt>
           <dd id="place-status-level">—</dd>
         </div>
+        <div>
+          <dt>Arah angin</dt>
+          <dd id="place-status-wind">—</dd>
+        </div>
+        <div>
+          <dt>Skor risiko</dt>
+          <dd id="place-status-risk">—</dd>
+        </div>
       </dl>
       <p id="place-status-smoke-note" class="place-status-smoke-note"></p>
+      <div class="place-status-sim">
+        <button type="button" id="simulate-button">
+          Simulasikan sebaran api (eksperimental)
+        </button>
+        <button type="button" id="simulate-clear" class="simulate-clear">
+          Hapus
+        </button>
+      </div>
+      <span id="simulate-status" class="simulate-status" aria-live="polite"></span>
       <p class="place-status-note">
         Indikatif dari titik panas satelit Himawari, bukan peringatan resmi.
-        Selalu ikuti arahan BNPB/BMKG.
+        Selalu ikuti arahan BNPB/BMKG. Cuaca: Open-Meteo.
       </p>
     </div>
   </div>

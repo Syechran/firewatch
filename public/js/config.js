@@ -13,6 +13,7 @@ export const ENDPOINTS = {
   fires: "/api/fires",
   firesLatest: "/api/fires/latest",
   firesStats: "/api/fires/stats",
+  weather: "/api/weather",
   health: "/health"
 };
 
@@ -145,6 +146,34 @@ export const SMOKE_NOTES = {
   haze: "Asap/kabut ringan terdeteksi di sekitar.",
   dense: "Asap pekat dari api aktif — kualitas udara berisiko tinggi bagi pernapasan."
 };
+
+// --- Simulasi sebaran api (eksperimental, hasil belum tervalidasi) ---
+export const SIMULATION = {
+  cellDeg: 0.01, // ukuran sel ~1,1 km (lebih cepat dari 0,005 di SiagaApi)
+  hours: 6, // jumlah langkah; 1 langkah ≈ 1 jam
+  maxCellsPerSide: 140, // batas ukuran grid demi performa
+  ignitionRadiusKm: 30, // hanya klaster dalam radius ini dari lokasi
+  baseProbability: 0.15, // peluang dasar tanpa pengaruh cuaca
+  ignitionLevel: 2 // titik dengan fire_level >= ini jadi pemicu awal
+};
+
+// Skor risiko (0..100) dari kelembapan + angin + jumlah titik panas.
+// Formula mengikuti SiagaApi (masih heuristik, belum divalidasi literatur).
+export const RISK_INDEX = {
+  weights: { humidity: 0.4, wind: 0.6, hotspot: 2.0 },
+  hotspotCap: 20,
+  bands: [
+    { min: 70, key: "merah", label: "Tinggi" },
+    { min: 40, key: "kuning", label: "Sedang" },
+    { min: 0, key: "hijau", label: "Rendah" }
+  ]
+};
+
+// Konversi arah angin (derajat, arah DARI mana angin bertiup) ke mata angin.
+export const COMPASS_POINTS = [
+  "Utara", "Timur Laut", "Timur", "Tenggara",
+  "Selatan", "Barat Daya", "Barat", "Barat Laut"
+];
 
 // Daftar provinsi untuk data mock (dicocokkan tanpa peduli huruf besar/kecil).
 export const PROVINCES = [

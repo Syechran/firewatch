@@ -22,6 +22,8 @@ map.createPane("provinces");
 map.getPane("provinces").style.zIndex = "410";
 map.createPane("zones");
 map.getPane("zones").style.zIndex = "415";
+map.createPane("simulation");
+map.getPane("simulation").style.zIndex = "418";
 map.createPane("hotspots");
 map.getPane("hotspots").style.zIndex = "420";
 

@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
 import { firesRouter } from "./routes/fires.js";
+import { weatherRouter } from "./routes/weather.js";
 import { getSchedulerState } from "./scheduler.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -47,6 +48,7 @@ export function createApp() {
     });
   });
 
+  app.use("/api/weather", weatherRouter);
   app.use("/api", firesRouter);
 
   // Serve the static frontend (same origin as the API).

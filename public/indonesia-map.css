@@ -946,6 +946,72 @@ h1 > span {
   border-color: rgba(255, 90, 44, 0.35);
 }
 
+.place-status-metrics dd[data-band="hijau"] {
+  color: #a9d38a;
+}
+
+.place-status-metrics dd[data-band="kuning"] {
+  color: #f0c266;
+}
+
+.place-status-metrics dd[data-band="merah"] {
+  color: #ff6a4d;
+}
+
+.place-status-sim {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+
+#simulate-button {
+  flex: 1;
+  padding: 11px 14px;
+  color: #200d07;
+  background: var(--accent);
+  border: none;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 800;
+  transition: background 0.18s ease;
+}
+
+#simulate-button:hover {
+  background: var(--accent-2);
+}
+
+.simulate-clear {
+  padding: 11px 14px;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: border-color 0.18s ease, color 0.18s ease;
+}
+
+.simulate-clear:hover {
+  color: var(--accent-2);
+  border-color: var(--accent);
+}
+
+.simulate-status {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+.report-status[data-state="verified"] {
+  color: #a9d38a;
+}
+
+.report-status[data-state="unverified"] {
+  color: var(--muted);
+}
+
 .place-status-note {
   margin: 0;
   padding-top: 12px;
