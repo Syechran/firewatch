@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
@@ -5,7 +6,23 @@ import { firesRouter } from "./routes/fires.js";
 import { getSchedulerState } from "./scheduler.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const frontendRoot = path.resolve(here, "..");
+
+// Folder aset frontend. Di Vercel, file di public/ disajikan CDN (express.static
+// diabaikan); di lokal kita sajikan sendiri dari public/. Urutan resolusi:
+// FRONTEND_ROOT → folder proyek lokal → cwd.
+function resolveFrontendRoot() {
+  if (process.env.FRONTEND_ROOT) {
+    return path.resolve(process.env.FRONTEND_ROOT);
+  }
+  const localRoot = path.resolve(here, "..");
+  if (fs.existsSync(path.join(localRoot, "public", "index.html"))) {
+    return localRoot;
+  }
+  return process.cwd();
+}
+
+const frontendRoot = resolveFrontendRoot();
+const publicDir = path.join(frontendRoot, "public");
 
 export function createApp() {
   const app = express();
@@ -33,13 +50,9 @@ export function createApp() {
   app.use("/api", firesRouter);
 
   // Serve the static frontend (same origin as the API).
-  app.use("/js", express.static(path.join(frontendRoot, "js")));
-  app.use("/vendor", express.static(path.join(frontendRoot, "vendor")));
-  app.get("/indonesia-map.css", (req, res) =>
-    res.sendFile(path.join(frontendRoot, "indonesia-map.css"))
-  );
+  app.use(express.static(publicDir));
   app.get(["/", "/indonesia-map.html"], (req, res) =>
-    res.sendFile(path.join(frontendRoot, "indonesia-map.html"))
+    res.sendFile(path.join(publicDir, "index.html"))
   );
 
   app.use((req, res) => {

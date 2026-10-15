@@ -1,0 +1,6 @@
+.env
+node_modules
+SiagaApi
+test
+session-ses_ec04.md
+*.log

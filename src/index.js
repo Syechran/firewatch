@@ -3,7 +3,13 @@ import { config } from "./config.js";
 import { migrate } from "./db/migrate.js";
 import { startScheduler } from "./scheduler.js";
 
-await migrate();
+// Di Vercel (serverless) scheduler & migrasi tidak dijalankan otomatis:
+// function bersifat sementara, dan migrasi dijalankan manual sekali.
+const isServerless = Boolean(process.env.VERCEL);
+
+if (!isServerless) {
+  await migrate();
+}
 
 const app = createApp();
 const server = app.listen(config.port, config.host, () => {
@@ -12,7 +18,7 @@ const server = app.listen(config.port, config.host, () => {
   );
 });
 
-const schedulerTask = startScheduler();
+const schedulerTask = isServerless ? null : startScheduler();
 
 async function shutdown(signal) {
   console.log(`\n[shutdown] ${signal}`);

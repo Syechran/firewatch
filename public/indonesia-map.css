@@ -19,6 +19,11 @@
   /* Kept for compatibility with map layer styling */
   --hover: #ffb26b;
   --selected: #ff5a2c;
+
+  /* Background gambar api (0 = transparan, 1 = penuh) */
+  --bg-image-opacity: 0.95;
+  /* Blur agar terasa seperti wallpaper, bukan foto tajam. */
+  --bg-image-blur: 50px;
 }
 
 * {
@@ -36,6 +41,39 @@ body {
   background-attachment: fixed;
   font-family: 'Manrope', sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Background gambar kebakaran (lapisan paling belakang, tampak wallpaper). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: url("images/_108761684_gettyimages-1167379763.jpg.png") center /
+    cover no-repeat;
+  opacity: var(--bg-image-opacity, 0.85);
+  filter: blur(var(--bg-image-blur, 14px)) saturate(1.05);
+  /* Perbesar sedikit supaya tepi blur tidak terlihat di pinggir layar. */
+  transform: scale(1.08);
+  transform-origin: center;
+  pointer-events: none;
+}
+
+/* Overlay gelap + glow ember agar konten tetap terbaca di atas gambar. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 560px at 12% -12%, rgba(255, 90, 44, 0.18), transparent 60%),
+    linear-gradient(
+      180deg,
+      rgba(12, 5, 4, 0.6) 0%,
+      rgba(11, 5, 4, 0.76) 60%,
+      rgba(9, 4, 3, 0.86) 100%
+    );
 }
 
 button,
@@ -79,6 +117,11 @@ button {
   font-family: 'DM Mono', monospace;
   font-size: 13px;
   letter-spacing: 0.5px;
+}
+
+img.brand-mark {
+  object-fit: contain;
+  padding: 3px;
 }
 
 .brand strong,
@@ -1511,6 +1554,124 @@ h1 > span {
   color: var(--muted);
   font-size: 11px;
   line-height: 1.5;
+}
+
+/* --- Animasi hover (smooth) --- */
+
+/* Kartu yang "terangkat" halus saat disentuh kursor. */
+.stat-card,
+.acc,
+.contact-card,
+.compass-wrap {
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease;
+  will-change: transform;
+}
+
+/* Panel besar: cukup beri aksen border + glow, tanpa bergeser. */
+.address-search,
+.selection-bar,
+.checklist,
+.report-form,
+.map-frame {
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease;
+}
+
+.stat-card:hover,
+.acc:hover,
+.contact-card:hover,
+.compass-wrap:hover {
+  transform: translateY(-5px);
+  border-color: var(--border-strong);
+  box-shadow:
+    0 16px 34px rgba(10, 4, 3, 0.5),
+    0 0 0 1px rgba(255, 90, 44, 0.14);
+}
+
+.address-search:hover,
+.selection-bar:hover,
+.checklist:hover,
+.report-form:hover {
+  border-color: var(--border-strong);
+  box-shadow:
+    0 12px 30px rgba(10, 4, 3, 0.4),
+    0 0 0 1px rgba(255, 90, 44, 0.1);
+}
+
+.map-frame:hover {
+  border-color: var(--border-strong);
+  box-shadow:
+    0 18px 44px rgba(10, 4, 3, 0.5),
+    0 0 0 1px rgba(255, 90, 44, 0.16);
+}
+
+/* Aksen mikro saat hover. */
+.acc summary {
+  transition: color 0.25s ease;
+}
+
+.acc:hover .acc-title,
+.acc:hover .acc-index {
+  color: var(--accent-2);
+}
+
+.stat-card strong,
+.contact-number {
+  transition: color 0.3s ease;
+}
+
+.stat-card:hover strong,
+.contact-card:hover .contact-number {
+  color: var(--accent-2);
+}
+
+.rule-list li {
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.rule-list li:hover {
+  color: #fff;
+  transform: translateX(5px);
+}
+
+#checklist-list label {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+#checklist-list label:hover {
+  color: var(--accent-2);
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-card,
+  .acc,
+  .contact-card,
+  .compass-wrap,
+  .address-search,
+  .selection-bar,
+  .checklist,
+  .report-form,
+  .map-frame,
+  .rule-list li,
+  #checklist-list label {
+    transition: none;
+  }
+
+  .stat-card:hover,
+  .acc:hover,
+  .contact-card:hover,
+  .compass-wrap:hover,
+  .rule-list li:hover,
+  #checklist-list label:hover {
+    transform: none;
+  }
 }
 
 @media (max-width: 900px) {
