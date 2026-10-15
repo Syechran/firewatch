@@ -1,24 +1,21 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#120807" />
   <meta
     name="description"
-    content="Explore the provinces of Indonesia on an interactive map."
+    content="Firewatch: interactive map of Indonesia for fire hotspot and risk monitoring."
   />
-  <title>Indonesia — Interactive Map</title>
+  <title>FIREWATCH — Interactive Map</title>
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
   <link rel="stylesheet" href="indonesia-map.css" />
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./" aria-label="Indonesia Map home">
+    <a class="brand" href="./" aria-label="Firewatch home">
       <span class="brand-mark">ID</span>
       <span>
         <strong>FIREWATCH</strong>
@@ -28,7 +25,9 @@
 
     <div class="topbar-right">
       <span class="status-dot"></span>
-      <span>38 PROVINCES</span>
+      <span id="hotspot-count">memuat titik panas…</span>
+      <span class="status-separator" aria-hidden="true">/</span>
+      <span id="backend-status">MOCK DATA</span>
     </div>
   </header>
 
@@ -38,7 +37,7 @@
         <p class="eyebrow">SOUTHEAST ASIA / ARCHIPELAGO</p>
         <h1>Explore Indonesia<span>.</span></h1>
         <p class="subtitle">
-          Select a province to explore its place on the map.
+          Select a province to inspect its fire risk, and toggle the hotspot layer.
         </p>
       </div>
 
@@ -56,6 +55,22 @@
         <small>ISLANDS · ARCHIPELAGO</small>
       </div>
 
+      <div class="layer-toggles" role="group" aria-label="Peta layer">
+        <label class="layer-toggle">
+          <input type="checkbox" id="toggle-risk" checked />
+          <span>Risiko Provinsi</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" id="toggle-hotspots" checked />
+          <span>Titik Panas</span>
+        </label>
+      </div>
+
+      <div class="map-legend" id="map-legend" aria-label="Legend indeks risiko">
+        <span class="legend-title">INDEKS RISIKO</span>
+        <ul></ul>
+      </div>
+
       <div class="map-hint">
         <span class="hint-dot"></span>
         Hover to explore <span class="hint-separator">/</span> Click to select
@@ -71,43 +86,309 @@
         <span id="province-code">Click a province on the map</span>
       </div>
 
+      <span id="province-risk" class="risk-badge"></span>
+
       <div class="selection-actions">
         <span id="province-count">38 provinces available</span>
         <button id="clear-selection" type="button">Clear selection</button>
       </div>
     </section>
 
-    
     <section class="address-search">
-    <div class="search-heading">
+      <div class="search-heading">
         <div>
-        <span class="search-eyebrow">LOCATION FINDER</span>
-        <h2>Find a place<span>.</span></h2>
-        <p>Search for an address or location in Indonesia.</p>
+          <span class="search-eyebrow">LOCATION FINDER</span>
+          <h2>Find a place<span>.</span></h2>
+          <p>Search for an address or location in Indonesia.</p>
         </div>
         <span class="search-icon" aria-hidden="true">⌕</span>
-    </div>
+      </div>
 
-    <form id="address-search-form" class="search-form">
+      <form id="address-search-form" class="search-form">
         <label class="sr-only" for="address-input">Address or location</label>
         <span class="input-icon" aria-hidden="true">⌖</span>
         <input
-        id="address-input"
-        type="search"
-        placeholder="Enter an address, city, or landmark..."
-        autocomplete="off"
-        required
+          id="address-input"
+          type="search"
+          placeholder="Enter an address, city, or landmark..."
+          autocomplete="off"
+          required
         />
         <button id="address-search-button" type="submit">
-        Search <span aria-hidden="true">→</span>
+          Search <span aria-hidden="true">→</span>
         </button>
-    </form>
+      </form>
 
-    <p id="address-search-status" class="search-status" aria-live="polite">
+      <p id="address-search-status" class="search-status" aria-live="polite">
         Try a place such as Braga Street, Bandung.
-    </p>
+      </p>
     </section>
 
+    <section class="content-section" id="ringkasan">
+      <div class="section-head">
+        <p class="eyebrow">SITUASI NASIONAL</p>
+        <h2>Pantauan hari ini<span>.</span></h2>
+        <p>Ringkasan singkat titik panas dan provinsi berisiko tinggi, diperbarui dari data terakhir.</p>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <span class="stat-label">Titik panas terpantau</span>
+          <strong id="stat-hotspots">—</strong>
+          <small>24 jam terakhir</small>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Confidence tinggi</span>
+          <strong id="stat-high">—</strong>
+          <small>prioritas verifikasi</small>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Provinsi risiko tinggi</span>
+          <strong id="stat-risk">—</strong>
+          <small>indeks ≥ 0.70</small>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Pembaruan terakhir</span>
+          <strong id="stat-updated">—</strong>
+          <small>waktu akuisisi</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section" id="panduan">
+      <div class="section-head">
+        <p class="eyebrow">TANGGAP DARURAT</p>
+        <h2>Apa yang harus dilakukan<span>.</span></h2>
+        <p>Langkah praktis menghadapi kebakaran hutan dan lahan, dari persiapan sampai pasca-kejadian.</p>
+      </div>
+
+      <div class="accordion">
+        <details class="acc" open>
+          <summary>
+            <span class="acc-index">01</span>
+            <span class="acc-title">Sebelum — bersiap</span>
+            <span class="acc-arrow" aria-hidden="true">+</span>
+          </summary>
+          <div class="acc-body">
+            <ul>
+              <li>Kenali jalur evakuasi dan titik kumpul terdekat dari rumah.</li>
+              <li>Siapkan tas siaga (lihat checklist di bawah) dan simpan di tempat mudah dijangkau.</li>
+              <li>Pantau informasi resmi BMKG, BNPB, dan pemerintah daerah.</li>
+              <li>Catat nomor darurat keluarga dan tetangga rentan (lansia, bayi, disabilitas).</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span class="acc-index">02</span>
+            <span class="acc-title">Saat — bertindak</span>
+            <span class="acc-arrow" aria-hidden="true">+</span>
+          </summary>
+          <div class="acc-body">
+            <ul>
+              <li>Segera hubungi <strong>112</strong> dan laporkan lokasi serta arah asap.</li>
+              <li>Matikan listrik dan gas, jangan biarkan api terbuka menyala.</li>
+              <li>Jangan mencoba memadamkan api yang sudah besar — fokus ke evakuasi.</li>
+              <li>Ikuti arahan petugas; jangan menembus asap untuk mengambil barang.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span class="acc-index">03</span>
+            <span class="acc-title">Setelah — waspada</span>
+            <span class="acc-arrow" aria-hidden="true">+</span>
+          </summary>
+          <div class="acc-body">
+            <ul>
+              <li>Jangan memasuki area bekas terbakar sampai dinyatakan aman oleh petugas.</li>
+              <li>Waspadai bara tersembunyi — lahan gambut bisa menyala kembali berhari-hari.</li>
+              <li>Gunakan masker saat membersihkan abu; jaga ventilasi dan air bersih.</li>
+              <li>Catat kerusakan dan laporkan untuk bantuan serta pemulihan.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="content-section" id="evakuasi">
+      <div class="section-head">
+        <p class="eyebrow">ARAH ASAP</p>
+        <h2>Baca arah asap<span>.</span></h2>
+        <p>Asap dan api bergerak mengikuti arah angin. Bergeraklah melawan arah angin atau tegak lurus terhadap asap — jangan menembusnya.</p>
+      </div>
+
+      <div class="smoke-layout">
+        <div class="compass-wrap">
+          <svg class="compass" viewBox="0 0 240 240" role="img" aria-label="Diagram arah angin dan zona aman">
+            <defs>
+              <marker id="windArrow" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto">
+                <path d="M0,0 L7,3 L0,6 Z" fill="#ff5a2c" />
+              </marker>
+            </defs>
+            <circle cx="120" cy="120" r="100" class="compass-ring" />
+            <circle cx="120" cy="120" r="70" class="compass-ring-inner" />
+            <text x="120" y="28" class="compass-cardinal">N</text>
+            <text x="120" y="222" class="compass-cardinal">S</text>
+            <text x="26" y="124" class="compass-cardinal">W</text>
+            <text x="214" y="124" class="compass-cardinal">E</text>
+            <circle cx="72" cy="72" r="34" class="zone-safe" />
+            <text x="72" y="70" class="zone-label">ZONA</text>
+            <text x="72" y="84" class="zone-label">AMAN</text>
+            <circle cx="170" cy="170" r="30" class="zone-smoke" />
+            <text x="170" y="174" class="zone-label zone-label-smoke">ASAP</text>
+            <line x1="84" y1="84" x2="158" y2="158" class="wind-line" marker-end="url(#windArrow)" />
+            <text x="101" y="101" class="wind-label" transform="rotate(45 101 101)">ARAH ANGIN</text>
+          </svg>
+        </div>
+
+        <ol class="rule-list">
+          <li>Bergerak melawan arah angin atau tegak lurus arah asap, bukan menembus asap.</li>
+          <li>Turun ke lereng bawah — api menjalar jauh lebih cepat ke arah atas (menanjak).</li>
+          <li>Hindari lembah, jurang, dan alur sungai kering — berfungsi seperti cerobong api.</li>
+          <li>Jangan menyeberangi punggungan atau bukit yang masih terbakar di baliknya.</li>
+          <li>Cari area terbuka: lapangan, jalan, badan air, atau area yang sudah terbakar.</li>
+          <li>Jika terjebak asap: tetap rendah (asap dan panas naik), basahi kain dan tutup hidung serta mulut.</li>
+        </ol>
+      </div>
+
+      <p class="disclaimer">
+        Panduan umum, bukan pengganti arahan resmi BNPB/BMKG atau petugas di lapangan.
+        Selalu utamakan instruksi otoritas setempat.
+      </p>
+    </section>
+
+    <section class="content-section" id="tas-siaga">
+      <div class="section-head">
+        <p class="eyebrow">PERSIAPAN</p>
+        <h2>Tas siaga<span>.</span></h2>
+        <p>Centang yang sudah kamu siapkan. Progres tersimpan otomatis di peramban ini.</p>
+      </div>
+
+      <div class="checklist">
+        <div class="checklist-head">
+          <span id="checklist-progress">0/9 siap</span>
+          <button id="checklist-reset" type="button">Reset</button>
+        </div>
+        <ul id="checklist-list">
+          <li><label><input type="checkbox" data-key="masker" /><span>Masker N95 atau kain basah</span></label></li>
+          <li><label><input type="checkbox" data-key="air" /><span>Air minum (min. 2 liter)</span></label></li>
+          <li><label><input type="checkbox" data-key="p3k" /><span>Obat pribadi &amp; kotak P3K</span></label></li>
+          <li><label><input type="checkbox" data-key="dokumen" /><span>Fotokopi dokumen penting</span></label></li>
+          <li><label><input type="checkbox" data-key="senter" /><span>Senter &amp; baterai cadangan</span></label></li>
+          <li><label><input type="checkbox" data-key="peluit" /><span>Peluit untuk memanggil bantuan</span></label></li>
+          <li><label><input type="checkbox" data-key="uang" /><span>Uang tunai secukupnya</span></label></li>
+          <li><label><input type="checkbox" data-key="powerbank" /><span>Power bank &amp; kabel charger</span></label></li>
+          <li><label><input type="checkbox" data-key="peta" /><span>Peta &amp; catatan jalur evakuasi</span></label></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section" id="lapor">
+      <div class="section-head">
+        <p class="eyebrow">PARTISIPASI WARGA</p>
+        <h2>Lapor titik api<span>.</span></h2>
+        <p>Lihat asap atau api? Klik lokasi di peta untuk mengisi koordinat, lalu kirim laporan.</p>
+      </div>
+
+      <form id="report-form" class="report-form">
+        <div class="report-grid">
+          <label>
+            Latitude
+            <input id="report-lat" type="number" step="any" required placeholder="-0.50000" />
+          </label>
+          <label>
+            Longitude
+            <input id="report-lng" type="number" step="any" required placeholder="101.45000" />
+          </label>
+        </div>
+
+        <label>
+          Keterangan
+          <textarea id="report-note" rows="3" required placeholder="Contoh: asap tebal dari arah barat, api terlihat di pinggir jalan..."></textarea>
+        </label>
+
+        <div class="report-actions">
+          <span id="report-status" class="report-status" aria-live="polite"></span>
+          <button type="submit" id="report-submit">Kirim laporan</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="content-section" id="kontak">
+      <div class="section-head">
+        <p class="eyebrow">DARURAT</p>
+        <h2>Nomor penting<span>.</span></h2>
+        <p>Simpan nomor ini. Verifikasi kembali dengan sumber resmi daerahmu sebelum digunakan.</p>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-card">
+          <span class="label">Darurat nasional</span>
+          <strong class="contact-number">112</strong>
+          <small>Bebas pulsa, semua operator</small>
+        </div>
+        <div class="contact-card">
+          <span class="label">Pemadam kebakaran</span>
+          <strong class="contact-number">113</strong>
+          <small>Damkar setempat</small>
+        </div>
+        <div class="contact-card">
+          <span class="label">BNPB</span>
+          <strong class="contact-number">117</strong>
+          <small>Badan Nasional Penanggulangan Bencana</small>
+        </div>
+        <div class="contact-card">
+          <span class="label">Ambulans</span>
+          <strong class="contact-number">119</strong>
+          <small>Layanan gawat darurat medis</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section" id="faq">
+      <div class="section-head">
+        <p class="eyebrow">MITOS &amp; FAKTA</p>
+        <h2>Yang sering keliru<span>.</span></h2>
+      </div>
+
+      <div class="accordion">
+        <details class="acc">
+          <summary>
+            <span class="acc-index">?</span>
+            <span class="acc-title">"Membakar lahan kecil itu aman."</span>
+            <span class="acc-arrow" aria-hidden="true">+</span>
+          </summary>
+          <div class="acc-body">
+            <p class="acc-text">Mitos. Api kecil di lahan gambut bisa menyebar di bawah permukaan dan muncul kembali jauh dari titik awal, sering berhari-hari kemudian.</p>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span class="acc-index">?</span>
+            <span class="acc-title">"Merangkak rendah selalu paling aman."</span>
+            <span class="acc-arrow" aria-hidden="true">+</span>
+          </summary>
+          <div class="acc-body">
+            <p class="acc-text">Tidak selalu. Menunduk membantu untuk asap tipis, tetapi pada api besar panas radiasi dan bahan bakar di permukaan justru lebih berbahaya — prioritaskan menjauh dari arah api dan angin.</p>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span class="acc-index">?</span>
+            <span class="acc-title">"Hujan berarti sudah aman."</span>
+            <span class="acc-arrow" aria-hidden="true">+</span>
+          </summary>
+          <div class="acc-body">
+            <p class="acc-text">Belum tentu. Hujan singkat tidak selalu memadamkan api di gambut. Bara di bawah permukaan bisa tetap panas dan menyala kembali saat kering.</p>
+          </div>
+        </details>
+      </div>
+    </section>
 
     <footer class="map-footer">
       <span>GEOGRAPHIC EXPLORATION</span>
@@ -115,7 +396,7 @@
     </footer>
   </main>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="indonesia-map.js"></script>
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
