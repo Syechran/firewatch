@@ -54,3 +54,18 @@ CREATE TABLE IF NOT EXISTS ingested_files (
 
 CREATE INDEX IF NOT EXISTS idx_ingested_files_slot
   ON ingested_files (observed_slot DESC);
+
+-- Berita terkait kebakaran, dihimpun dari RSS media (job terjadwal).
+CREATE TABLE IF NOT EXISTS news_items (
+  id           BIGSERIAL PRIMARY KEY,
+  link         TEXT NOT NULL UNIQUE,
+  title        TEXT NOT NULL,
+  source       TEXT NOT NULL,
+  summary      TEXT,
+  image_url    TEXT,
+  published_at TIMESTAMPTZ,
+  fetched_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_news_items_published
+  ON news_items (published_at DESC);

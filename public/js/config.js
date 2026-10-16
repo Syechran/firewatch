@@ -14,6 +14,7 @@ export const ENDPOINTS = {
   firesLatest: "/api/fires/latest",
   firesStats: "/api/fires/stats",
   weather: "/api/weather",
+  news: "/api/news",
   health: "/health"
 };
 
